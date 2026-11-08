@@ -118,6 +118,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 #scene.is-ready { opacity: 1; }
 .no-3d #scene { display: none; }
+/* de fles is aanklikbaar: hand-cursor boven de fles, grijphand tijdens slepen */
+.bottle-hover, .bottle-hover body { cursor: grab; }
+.bottle-drag, .bottle-drag * { cursor: grabbing !important; user-select: none; -webkit-user-select: none; }
 
 /* ---------- akte 1: held ---------- */
 .hero {
@@ -911,20 +914,119 @@ html:not(.scenes-on) .scene-dark { background: var(--antraciet); }
     }));
     glassBack.renderOrder = 2; glassFront.renderOrder = 4;
     model.add(glassBack, glassFront);
-    var edges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 20), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .55 }));
+    var edges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo, 20), new THREE.LineBasicMaterial({ color: 0xfff8ec, transparent: true, opacity: .7 }));
     edges.renderOrder = 5; model.add(edges);
 
-    /* vloeistof: begint boven een dikke glazen bodem */
-    var LB = Y0 + .26, LT = Y0 + H - .17, WALL = .1;
+    /* vloeistof: iets meer dan halfvol, doorschijnend, met een oppervlak dat golft en meeklotst.
+       oppervlak = raster van NG×NG punten; de wanden volgen de rand van dat raster, zodat ze altijd aansluiten */
+    var LB = Y0 + .26, LT = Y0 + H - .17, WALL = .1, FILL = .58, LS = LB + (LT - LB) * FILL;
     function rAt(y) { return RB + (RT - RB) * (y - Y0) / H; }
-    var liquidMat = new THREE.MeshPhysicalMaterial({
-      color: 0xC98318, roughness: .12, metalness: 0, transparent: true, opacity: .96,
-      emissive: 0x5a2a04, emissiveIntensity: .3, clearcoat: .6, envMapIntensity: .7
+    function apAt(y) { return (rAt(y) - WALL) * Math.SQRT1_2; }
+    var NG = 26, apS = apAt(LS), apB = apAt(LB);
+    var wallMat = new THREE.MeshPhysicalMaterial({
+      color: 0xC8720C, roughness: .18, metalness: 0, transparent: true, opacity: .52,
+      emissive: 0x9a4204, emissiveIntensity: .55, envMapIntensity: .25,
+      side: THREE.DoubleSide, depthWrite: false
     });
-    liquidMat.color.convertSRGBToLinear(); liquidMat.emissive.convertSRGBToLinear();
-    var liquid = new THREE.Mesh(prism(rAt(LT) - WALL, rAt(LB) - WALL, LT - LB), liquidMat);
-    liquid.position.y = (LB + LT) / 2; liquid.renderOrder = 1;
-    model.add(liquid);
+    var surfMat = new THREE.MeshPhysicalMaterial({
+      color: 0xE08A16, roughness: .03, metalness: 0, transparent: true, opacity: .62,
+      emissive: 0xA04a06, emissiveIntensity: .45, clearcoat: 1, clearcoatRoughness: .03, envMapIntensity: 1.1,
+      side: THREE.DoubleSide, depthWrite: false
+    });
+    [wallMat, surfMat].forEach(function (m) { m.color.convertSRGBToLinear(); m.emissive.convertSRGBToLinear(); });
+
+    var sPos = new Float32Array(NG * NG * 3), sIdx = [], gx, gz;
+    for (gz = 0; gz < NG; gz++) for (gx = 0; gx < NG; gx++) {
+      var so = (gz * NG + gx) * 3;
+      sPos[so] = (gx / (NG - 1) * 2 - 1) * apS; sPos[so + 1] = LS; sPos[so + 2] = (gz / (NG - 1) * 2 - 1) * apS;
+    }
+    for (gz = 0; gz < NG - 1; gz++) for (gx = 0; gx < NG - 1; gx++) {
+      var ga = gz * NG + gx, gb = ga + 1, gc = ga + NG, gd = gc + 1;
+      sIdx.push(ga, gc, gb, gb, gc, gd);
+    }
+    var surfGeo = new THREE.BufferGeometry();
+    surfGeo.setAttribute("position", new THREE.BufferAttribute(sPos, 3)); surfGeo.setIndex(sIdx);
+    var surf = new THREE.Mesh(surfGeo, surfMat); surf.renderOrder = 1; model.add(surf);
+
+    /* vier wanden: bovenrand = rand van het oppervlak, onderrand = bodem */
+    var ring = [], wPos = new Float32Array(4 * NG * 2 * 3), wIdx = [];
+    for (gx = 0; gx < NG; gx++) ring.push(gx);                                  // voorkant z-
+    for (gz = 0; gz < NG; gz++) ring.push(gz * NG + NG - 1);                    // rechts x+
+    for (gx = NG - 1; gx >= 0; gx--) ring.push((NG - 1) * NG + gx);             // achter z+
+    for (gz = NG - 1; gz >= 0; gz--) ring.push(gz * NG);                        // links x-
+    for (var wi = 0; wi < ring.length; wi++) {
+      var src = ring[wi] * 3, bo = (ring.length + wi) * 3;
+      wPos[bo] = sPos[src] * apB / apS; wPos[bo + 1] = LB; wPos[bo + 2] = sPos[src + 2] * apB / apS;
+    }
+    for (var side = 0; side < 4; side++) for (var k2 = 0; k2 < NG - 1; k2++) {
+      var t0 = side * NG + k2, t1 = t0 + 1, b0 = ring.length + t0, b1 = b0 + 1;
+      wIdx.push(t0, b0, t1, t1, b0, b1);
+    }
+    var wallGeo = new THREE.BufferGeometry();
+    wallGeo.setAttribute("position", new THREE.BufferAttribute(wPos, 3)); wallGeo.setIndex(wIdx);
+    var walls = new THREE.Mesh(wallGeo, wallMat); walls.renderOrder = 1; model.add(walls);
+
+    /* belletjes die rustig naar boven komen */
+    var bubbleGeo = new THREE.SphereGeometry(1, 8, 6);
+    var bubbleMat = new THREE.MeshBasicMaterial({ color: 0xfff1d2, transparent: true, opacity: .5, depthWrite: false });
+    var bubbles = [];
+    function resetBubble(b, anywhere) {
+      b.userData = { u: Math.random() * 1.6 - .8, v: Math.random() * 1.6 - .8, sp: .1 + Math.random() * .2, ph: Math.random() * 6, s: .007 + Math.random() * .013 };
+      b.position.y = anywhere ? LB + .03 + Math.random() * (LS - LB - .1) : LB + .03;
+      b.scale.setScalar(b.userData.s);
+    }
+    for (var bi = 0; bi < 16; bi++) {
+      var bm = new THREE.Mesh(bubbleGeo, bubbleMat); bm.renderOrder = 1; resetBubble(bm, true); model.add(bm); bubbles.push(bm);
+    }
+
+    /* warme gloed van binnenuit: maakt de fles levendiger */
+    var glow = new THREE.PointLight(0xffa13a, .9, 3.2, 2); glow.position.set(0, LB + .45, .2); model.add(glow);
+
+    /* oppervlak per frame: waterpas in de wereld + klotsen bij versnellen + draaikolk bij draaien + golfjes */
+    var qInv = new THREE.Quaternion(), upW = new THREE.Vector3(), prevPos = null, vel = new THREE.Vector3(), prevVel = new THREE.Vector3(), acc = new THREE.Vector3();
+    var slosh = { x: 0, z: 0, vx: 0, vz: 0 }, energy = 0, omega = 0, prevRot = null;
+    var L = { sx: 0, sz: 0, c: 0, amp: 0, t: 0 }, rMean = 2 * apS * apS / 3;
+    function surfY(x, z) {
+      var t = L.t, wv = .5 * Math.sin(7 * x + 2.3 * t) + .4 * Math.sin(8 * z - 1.9 * t + 1.3)
+        + .3 * Math.sin(6 * (x + z) + 2.9 * t + .7) + .22 * Math.sin(10 * (x - z) - 3.6 * t);
+      return clamp(LS + L.sx * x + L.sz * z + L.c * (x * x + z * z - rMean) + L.amp * wv, LB + .04, LT);
+    }
+    function updateLiquid(dt, time) {
+      if (dt <= 0) return;
+      var pos = bottle.position;
+      if (!prevPos) prevPos = pos.clone();
+      var nv = pos.clone().sub(prevPos).divideScalar(dt); prevPos.copy(pos);
+      vel.lerp(nv, 1 - Math.exp(-dt * 12));
+      acc.copy(vel).sub(prevVel).divideScalar(dt); prevVel.copy(vel);
+      if (acc.length() > 60) acc.setLength(60);
+      /* klotsen: veer met weinig demping, zodat de vloeistof even na-wiegt */
+      var tx = clamp(acc.x * .02, -.4, .4), tz = clamp(acc.z * .02, -.4, .4);
+      slosh.vx += ((tx - slosh.x) * 55 - slosh.vx * 2.6) * dt; slosh.x = clamp(slosh.x + slosh.vx * dt, -.45, .45);
+      slosh.vz += ((tz - slosh.z) * 55 - slosh.vz * 2.6) * dt; slosh.z = clamp(slosh.z + slosh.vz * dt, -.45, .45);
+      /* draaien: hoe sneller, hoe dieper de draaikolk en hoe meer golfjes */
+      var ry = bottle.rotation.y; if (prevRot == null) prevRot = ry;
+      var wnow = (ry - prevRot) / dt; prevRot = ry;
+      var dw = wnow - omega; omega += dw * (1 - Math.exp(-dt * 6));
+      energy = Math.min(.06, (energy + Math.min(.02, Math.abs(dw) * .0012 + acc.length() * dt * .003)) * Math.exp(-dt * 1.2));
+      /* waterpas: 'boven' van de wereld omgerekend naar de fles */
+      qInv.copy(bottle.quaternion).invert();
+      upW.set(slosh.x + Math.sin(slosh.vx * .02), 1, slosh.z).applyQuaternion(qInv);
+      L.sx = -upW.x / upW.y; L.sz = -upW.z / upW.y;
+      L.c = Math.min(.1, omega * omega * .0022);
+      L.amp = reduce ? .002 : .005 + energy;
+      L.t = time;
+      for (var i = 0; i < NG * NG; i++) { var o = i * 3; sPos[o + 1] = surfY(sPos[o], sPos[o + 2]); }
+      for (var r = 0; r < ring.length; r++) { var s3 = ring[r] * 3, w3 = r * 3; wPos[w3] = sPos[s3]; wPos[w3 + 1] = sPos[s3 + 1]; wPos[w3 + 2] = sPos[s3 + 2]; }
+      surfGeo.attributes.position.needsUpdate = true; surfGeo.computeVertexNormals();
+      wallGeo.attributes.position.needsUpdate = true; wallGeo.computeVertexNormals();
+      bubbles.forEach(function (b) {
+        var u = b.userData, y = b.position.y + u.sp * dt * (1 + energy * 10) * (reduce ? 0 : 1), ap = apAt(y) * .85;
+        var x = u.u * ap + Math.sin(time * 2.1 + u.ph) * .012, z = u.v * ap;
+        if (y > surfY(x, z) - .025) { resetBubble(b, false); return; }
+        b.position.set(x, y, z);
+      });
+      glow.intensity = .8 + .12 * Math.sin(time * 1.3) + energy * 4;
+    }
 
     var tube = new THREE.Mesh(new THREE.CylinderGeometry(.016, .016, H - .3, 8), new THREE.MeshBasicMaterial({ color: 0xfff6e8, transparent: true, opacity: .35 }));
     tube.position.y = Y0 + H / 2 + .1; tube.renderOrder = 3; model.add(tube);
@@ -1018,6 +1120,47 @@ html:not(.scenes-on) .scene-dark { background: var(--antraciet); }
     var cur = null, spin = 0, intro = 0, px = 0, py = 0, tx = 0, ty = 0;
     addEventListener("pointermove", function (e) { tx = e.clientX / vw * 2 - 1; ty = e.clientY / vh * 2 - 1; }, { passive: true });
 
+    /* zelf draaien: klik (of tik) op de fles voor een zwier, of sleep met de muis en laat los */
+    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hitTargets = [glassFront, cap, capTop, collar];
+    var userSpin = 0, userVel = 0, drag = null, hoverQueued = false, root = document.documentElement;
+    function hitBottle(e) {
+      if (canvas.style.visibility === "hidden" || bottle.scale.x < .05) return false;
+      ndc.set(e.clientX / vw * 2 - 1, -(e.clientY / vh) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      return ray.intersectObjects(hitTargets, false).length > 0;
+    }
+    function onControl(e) { return e.target.closest && e.target.closest("a, button, input, label, select, textarea, video, .scene-card, .ing-feature"); }
+    addEventListener("pointerdown", function (e) {
+      if (e.button !== 0 || onControl(e) || !hitBottle(e)) return;
+      drag = { type: e.pointerType, last: e.clientX, x0: e.clientX, moved: 0, v: 0, tl: performance.now() };
+      if (e.pointerType === "mouse") { e.preventDefault(); root.classList.add("bottle-drag"); }
+    });
+    addEventListener("pointermove", function (e) {
+      if (drag && drag.type === "mouse") {
+        var now = performance.now(), dx = e.clientX - drag.last;
+        drag.last = e.clientX; drag.moved += Math.abs(dx);
+        userSpin += dx * .012;
+        drag.v = dx * .012 / Math.max(.008, (now - drag.tl) / 1000); drag.tl = now;
+        return;
+      }
+      if (e.pointerType !== "mouse" || hoverQueued) return;
+      hoverQueued = true;
+      requestAnimationFrame(function () { hoverQueued = false; root.classList.toggle("bottle-hover", !onControl(e) && hitBottle(e)); });
+    }, { passive: true });
+    function release(e) {
+      if (!drag) return;
+      if (drag.moved < 6) {
+        /* klik: een zwier in de richting van de kant waarop je klikt */
+        var c = new THREE.Vector3().setFromMatrixPosition(bottle.matrixWorld).project(camera);
+        var dir = (e.clientX / vw * 2 - 1) > c.x ? 1 : -1;
+        userVel = clamp(userVel + dir * 9, -22, 22);
+      } else if (performance.now() - drag.tl < 120) userVel = clamp(drag.v, -22, 22);
+      else userVel = 0;
+      drag = null; root.classList.remove("bottle-drag");
+    }
+    addEventListener("pointerup", release);
+    addEventListener("pointercancel", function () { drag = null; root.classList.remove("bottle-drag"); });
+
     function frame(st, dt, time) {
       var w = st.w, t = { x: 0, y: 0, s: 0 };
       ["hero", "ing", "exit"].forEach(function (k) { t.x += S[k].x * w[k]; t.y += S[k].y * w[k]; t.s += S[k].s * w[k]; });
@@ -1038,8 +1181,10 @@ html:not(.scenes-on) .scene-dark { background: var(--antraciet); }
 
       bottle.position.set(cur.x, cur.y - (1 - ie) * 1.4 + (reduce ? 0 : Math.sin(time * 1.1) * .04), 0);
       bottle.scale.setScalar(cur.s * (.82 + .18 * ie));
-      bottle.rotation.set(.1 + py * .12, cur.ry + spin + sway + (1 - ie) * Math.PI * 1.5 + px * .35, px * -.04);
+      if (!drag) { userSpin += userVel * dt; userVel *= Math.exp(-dt * 1.1); }
+      bottle.rotation.set(.1 + py * .12, cur.ry + spin + sway + (1 - ie) * Math.PI * 1.5 + px * .35 + userSpin, px * -.04);
       shadow.material.opacity = w.hero * ie;
+      updateLiquid(dt, time);
 
 
       /* bolletjes: alleen in akte 2, één ingrediënt per stap */
