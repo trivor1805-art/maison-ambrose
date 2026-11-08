@@ -239,21 +239,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   position: relative; justify-self: center; overflow: hidden; border-radius: var(--radius-img);
   width: 100%; max-width: 100%; aspect-ratio: var(--film-ar, 9 / 16); max-height: 82svh; background: #000;
 }
-.film-media:has(video) { width: auto; height: min(82svh, 760px); }
-.film-media video { display: block; width: 100%; height: 100%; object-fit: cover; }
-.film-controls {
-  position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.film-controls[hidden] { display: none; }
-.film-btn {
-  min-height: 36px; padding: 0 14px; border: 1px solid rgba(244, 239, 230, .5); border-radius: 99px;
-  background: rgba(31, 29, 27, .55); color: var(--creme); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  font: 600 .8125rem/1 var(--font); cursor: pointer;
-  transition: background .25s ease, border-color .25s ease;
-}
-.film-btn:hover { background: rgba(94, 26, 36, .85); border-color: var(--creme); }
-.film-bar { flex: 1 1 100%; height: 3px; background: rgba(244, 239, 230, .25); border-radius: 3px; overflow: hidden; }
-.film-bar i { display: block; height: 100%; width: 100%; background: var(--oud-goud); transform-origin: left; transform: scaleX(0); }
+.film-media:has(video) { width: auto; height: min(82svh, 760px); overflow: visible; background: none; aspect-ratio: auto; display: flex; flex-direction: column; gap: 12px; }
+.film-media video { display: block; width: auto; max-width: 100%; height: 100%; min-height: 0; flex: 1 1 auto; aspect-ratio: var(--film-ar, 9 / 16); object-fit: cover; border-radius: var(--radius-img); background: #000; box-shadow: 0 0 0 1px rgba(176, 141, 87, .35); }
+.film-media video:focus-visible { outline: 2px solid var(--oud-goud); outline-offset: 4px; }
+.film-cap { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; color: var(--creme-zacht); text-align: center; }
+.film-fallback { padding: 24px; color: var(--creme); }
+.film-fallback a { color: var(--oud-goud); }
 .drops { display: flex; gap: var(--s-l); margin-top: var(--s-s); flex-wrap: wrap; }
 .drops div { display: flex; flex-direction: column; gap: 2px; }
 .drops b { font-size: 2rem; font-weight: 700; color: var(--oud-goud); letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
@@ -329,6 +320,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .split-reverse .split-text { order: 0; }
   .media { aspect-ratio: 4 / 4.2; }
   .film-media:has(video) { width: min(100%, 420px); height: auto; max-height: none; }
+  .film-media video { width: 100%; height: auto; flex: none; }
   .signup-media { display: none; }
   .signup-box { padding-block: var(--s-xl); }
   .about-fig { justify-self: start; }
@@ -471,7 +463,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   <section class="band section story" id="verhaal" aria-labelledby="verhaal-titel">
     <div class="wrap">
       <div class="story-frame">
-        <img src="img/amber-kom.jpg" width="941" height="1672" loading="lazy" alt="Een stenen kom met sinaasappelschil, kaneel, vanille, lavendel, jasmijn en amberkristallen, met honing die over de rand druipt.">
+        <img src="img/amber-kom.jpg" width="941" height="1672" loading="lazy" alt="De fles Amber op crème stof naast een kom met sinaasappelschil, vanille, lavendel en rozenblaadjes, in warm zonlicht.">
         <div class="story-text">
           <h2 id="verhaal-titel" class="heading">Een parfumhuis voor trage momenten.</h2>
           <p class="lead">Maison Ambrose maakt warme, houtige geuren in kleine oplages, met tijd en aandacht.</p>
@@ -494,14 +486,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
         </div>
       </div>
       <figure class="film-media" id="film-box">
-        <video id="film-video" poster="img/amber-vloeistof.jpg" muted loop playsinline preload="metadata" aria-label="Film van Amber: ingrediënten vallen in het water en worden één geur.">
+        <video id="film-video" controls muted loop playsinline preload="metadata" poster="img/amber-vloeistof.jpg" aria-label="Film van Amber: ingrediënten vallen in het water en worden één geur.">
           <source src="video/amber.mp4" type="video/mp4">
+          <p class="film-fallback">Je browser ondersteunt deze video niet. <a href="video/amber.mp4">Download de film (MP4)</a>.</p>
         </video>
-        <div class="film-controls" id="film-controls" hidden>
-          <button class="film-btn" id="film-play" type="button" aria-pressed="false">Afspelen</button>
-          <button class="film-btn" id="film-sound" type="button" aria-pressed="false">Geluid aan</button>
-          <span class="film-bar" aria-hidden="true"><i id="film-bar"></i></span>
-        </div>
+        <figcaption class="film-cap">Amber · 15 seconden · geluid via de speler</figcaption>
       </figure>
     </div>
   </section>
@@ -534,7 +523,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
         </ul>
       </div>
       <figure class="about-fig">
-        <img src="img/hero-amber.jpg" width="941" height="1672" loading="lazy" alt="Het AI-beeld van de fles Amber op een stenen sokkel.">
+        <img src="img/hero-amber.jpg" width="941" height="1672" loading="lazy" alt="AI-beeld: de fles Amber op een stenen sokkel met jasmijn en vanille.">
         <figcaption>Het AI-beeld waarop de 3D-fles gebaseerd is</figcaption>
       </figure>
     </div>
@@ -544,8 +533,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   <section class="band signup" id="nieuwsbrief" aria-labelledby="nieuwsbrief-titel">
     <div class="wrap signup-grid">
       <div class="signup-box">
-        <h2 id="nieuwsbrief-titel" class="heading">Kom als eerste binnen.</h2>
-        <p>Nieuwe geuren, ateliernieuws en een gratis sample bij je eerste bestelling.</p>
+        <h2 id="nieuwsbrief-titel" class="heading">Blijf dichtbij.</h2>
+        <p>Ontdek de wereld van Maison Ambrose. Nieuwe verhalen, geurnoten en bijzondere momenten, rechtstreeks in je mailbox.</p>
         <form class="form" id="signup-form" novalidate>
           <div class="field">
             <label for="naam">Naam</label>
@@ -964,34 +953,21 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   requestAnimationFrame(loop);
 
 
-  /* ---------- film: speelt af in beeld, pauzeert erbuiten ---------- */
+  /* ---------- film: native speler; speelt stil af in beeld, pauzeert erbuiten ---------- */
   (function () {
-    var v = $("#film-video"), box = $("#film-box"), ctr = $("#film-controls");
-    var play = $("#film-play"), sound = $("#film-sound"), bar = $("#film-bar");
+    var v = $("#film-video"), box = $("#film-box");
     if (!v) return;
-    var userPaused = false, ok = false;
-    function setPlay() { var on = !v.paused; play.textContent = on ? "Pauze" : "Afspelen"; play.setAttribute("aria-pressed", on); }
-    function setSound() { sound.textContent = v.muted ? "Geluid aan" : "Geluid uit"; sound.setAttribute("aria-pressed", !v.muted); }
-    function fail() { ok = false; ctr.hidden = true; }
+    var userPaused = false, auto = false;
     v.addEventListener("loadedmetadata", function () {
-      ok = true; ctr.hidden = false;
       if (v.videoWidth && v.videoHeight) box.style.setProperty("--film-ar", v.videoWidth + " / " + v.videoHeight);
     });
-    v.addEventListener("error", fail, true);
-    var src = v.querySelector("source"); if (src) src.addEventListener("error", fail);
-    v.addEventListener("play", setPlay); v.addEventListener("pause", setPlay);
-    v.addEventListener("timeupdate", function () { if (v.duration) bar.style.transform = "scaleX(" + (v.currentTime / v.duration).toFixed(4) + ")"; });
-    play.addEventListener("click", function () {
-      if (v.paused) { userPaused = false; v.play().catch(function () {}); } else { userPaused = true; v.pause(); }
-    });
-    sound.addEventListener("click", function () { v.muted = !v.muted; if (!v.muted && v.paused) v.play().catch(function () {}); setSound(); });
-    setPlay(); setSound();
+    v.addEventListener("pause", function () { if (!auto) userPaused = true; auto = false; });
+    v.addEventListener("play", function () { userPaused = false; });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
         es.forEach(function (e) {
-          if (!ok) return;
-          if (e.isIntersecting && !userPaused && !reduce) v.play().catch(function () {});
-          else if (!e.isIntersecting) v.pause();
+          if (e.isIntersecting && !userPaused && !reduce && v.paused) v.play().catch(function () {});
+          else if (!e.isIntersecting && !v.paused) { auto = true; v.pause(); }
         });
       }, { threshold: .4 }).observe(box);
     }
@@ -1024,7 +1000,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
       .then(function (json) {
         if (json && json.success === false) throw new Error("rejected");
         form.classList.add("is-done");
-        show("Bedankt, " + nameInput.value.trim() + ". Je staat op de lijst. Je hoort als eerste van ons wanneer Amber te bestellen is.", false);
+        show("Bedankt, " + nameInput.value.trim() + ". Kijk in je mailbox en bevestig je inschrijving. Pas daarna sta je op de lijst.", false);
       })
       .catch(function () {
         /* verzoek geblokkeerd (bv. op claude.ai): geen nep-bedankt, maar de echte MailerLite-pagina aanbieden */
