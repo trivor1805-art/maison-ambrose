@@ -121,7 +121,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- akte 1: held ---------- */
 .hero {
-  position: relative;
+  position: relative; overflow-x: clip;
   min-height: calc(100svh - var(--header-h));
   display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-m);
   padding-block: var(--s-m) var(--s-l);
@@ -156,8 +156,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 @keyframes drip { to { top: 100%; } }
 .fallback-bottle { display: none; }
 .no-3d .fallback-bottle {
-  display: block; position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%);
-  width: min(40vw, 320px); aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 68%; z-index: 1; border-radius: var(--radius-img);
+  display: block; position: absolute; right: 6vw; bottom: 9%;
+  width: min(20vw, 200px); aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 68%; z-index: 1; border-radius: var(--radius-img);
 }
 
 /* ---------- akte 2: vastgezet podium ---------- */
@@ -193,6 +193,19 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .ing b { font-weight: 600; font-size: .95rem; line-height: 1.2; overflow-wrap: anywhere; }
 .ing small { font-size: .72rem; line-height: 1.35; color: var(--creme-zacht); }
 .ing .lay { font-size: .75rem; font-weight: 500; color: var(--oud-goud); }
+.ing-feature {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-s); align-items: start;
+  padding: 16px 18px; border-radius: 10px; min-height: 8.6rem;
+  background: rgba(244, 239, 230, .06); border: 1px solid rgba(176, 141, 87, .4);
+  border-color: color-mix(in srgb, var(--ing-c) 60%, transparent); transition: border-color .5s ease;
+}
+.ing-feature-icon { width: 56px; height: 56px; color: var(--ing-c); transition: color .5s ease; }
+.ing-feature-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ing-feature-meta { font-size: .8125rem; font-weight: 500; color: var(--oud-goud); }
+.ing-feature-name { font-size: clamp(1.5rem, 2.4vw, 2.1rem); font-weight: 700; line-height: 1.05; letter-spacing: -.01em; color: var(--ing-c); transition: color .5s ease; }
+.ing-feature-desc { font-size: .9375rem; line-height: 1.45; color: var(--creme-zacht); max-width: 44ch; }
+.ing-feature.is-swap .ing-feature-text, .ing-feature.is-swap .ing-feature-icon { animation: swap .55s cubic-bezier(.2, .8, .2, 1); }
+@keyframes swap { from { opacity: 0; transform: translateY(10px); } }
 .ing-photo { position: relative; border-radius: var(--radius-img); overflow: hidden; aspect-ratio: 16 / 5; max-width: 100%; }
 .ing-photo img { width: 100%; height: 130%; object-fit: cover; object-position: 50% 45%; transform: translateY(calc(var(--py, 0) * -1%)); }
 .ing-photo figcaption { position: absolute; left: 12px; bottom: 10px; font-size: .72rem; color: var(--creme); background: rgba(31, 29, 27, .6); padding: 4px 10px; border-radius: 99px; }
@@ -208,84 +221,82 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .media { overflow: hidden; border-radius: var(--radius-img); max-width: 100%; aspect-ratio: 4 / 5; }
 .media img { width: 100%; height: 118%; object-fit: cover; transform: translateY(calc(var(--py, 0) * -1%)); will-change: transform; }
 
-.product { background: var(--creme-diep); }
-.product .heading { font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 700; letter-spacing: -.035em; line-height: 1; }
-.product .media img { object-position: 50% 50%; }
-.specs { margin: var(--s-xs) 0 var(--s-s); width: 100%; border-top: 1px solid var(--lijn); }
-.specs div { display: grid; grid-template-columns: 9.5rem 1fr; gap: var(--s-s); padding-block: .85rem; border-bottom: 1px solid var(--lijn); }
-.specs dt { font-size: .9375rem; font-weight: 500; color: var(--tekst-zacht); }
-.specs dd { margin: 0; font-weight: 500; }
-
-
-.story { background: var(--creme); }
-.story-frame {
-  position: relative; overflow: hidden; border-radius: var(--radius-img); max-width: 100%;
-  min-height: min(86svh, 820px); display: grid; align-items: end; background: var(--antraciet);
+/* ---------- scènes na de fles ---------- */
+/* zonder animatie (minder beweging): beeld en kaart gewoon naast elkaar, sectie per sectie */
+.scene { position: relative; z-index: 2; }
+.scene-stage {
+  display: flex; align-items: center; justify-content: center; gap: clamp(2rem, 4.5vw, 5rem);
+  padding-block: var(--s-xl); padding-left: var(--gutter-l); padding-right: var(--gutter-r);
 }
-.story-frame img {
-  position: absolute; left: 0; top: 0; width: 100%; height: 118%; object-fit: cover; object-position: 50% 62%;
-  transform: translateY(calc(var(--py, 0) * -1%)); will-change: transform;
+.scene[data-side="left"] .scene-stage { flex-direction: row-reverse; }
+.scene-media { position: relative; flex: none; margin: 0; height: min(60svh, 680px); max-width: 100%; }
+.scene-media img { display: block; height: 100%; width: auto; max-width: 100%; object-fit: cover; border-radius: var(--radius-img); }
+.scene-media figcaption { position: absolute; left: 0; right: 0; top: calc(100% + 10px); font-size: .8125rem; color: var(--tekst-zacht); text-align: center; }
+.scene-film video {
+  display: block; height: 100%; width: auto; max-width: 100%; aspect-ratio: var(--film-ar, 9 / 16); object-fit: cover;
+  border-radius: var(--radius-img); background: #000; box-shadow: 0 0 0 1px rgba(176, 141, 87, .35);
 }
-.story-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(31, 29, 27, .88) 0%, rgba(31, 29, 27, .45) 42%, rgba(31, 29, 27, 0) 70%); }
-.story-text {
-  position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--s-s);
-  max-width: 36rem; min-width: 0; padding: clamp(1.5rem, 4vw, 3.5rem); color: var(--creme);
-}
-.story-text .heading { color: var(--creme); }
-.story-text p:not(.lead) { color: var(--creme-zacht); }
-.film { background: var(--antraciet); }
-.film-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: var(--s-xl); align-items: center; }
-.film-media {
-  position: relative; justify-self: center; overflow: hidden; border-radius: var(--radius-img);
-  width: 100%; max-width: 100%; aspect-ratio: var(--film-ar, 9 / 16); max-height: 82svh; background: #000;
-}
-.film-media:has(video) { width: auto; height: min(82svh, 760px); overflow: visible; background: none; aspect-ratio: auto; display: flex; flex-direction: column; gap: 12px; }
-.film-media video { display: block; width: auto; max-width: 100%; height: 100%; min-height: 0; flex: 1 1 auto; aspect-ratio: var(--film-ar, 9 / 16); object-fit: cover; border-radius: var(--radius-img); background: #000; box-shadow: 0 0 0 1px rgba(176, 141, 87, .35); }
-.film-media video:focus-visible { outline: 2px solid var(--oud-goud); outline-offset: 4px; }
-.film-cap { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; color: var(--creme-zacht); text-align: center; }
+.scene-film video:focus-visible { outline: 2px solid var(--oud-goud); outline-offset: 4px; }
+.scene-film .film-cap { color: var(--creme-zacht); letter-spacing: .02em; }
 .film-fallback { padding: 24px; color: var(--creme); }
 .film-fallback a { color: var(--oud-goud); }
-.drops { display: flex; gap: var(--s-l); margin-top: var(--s-s); flex-wrap: wrap; }
+html:not(.scenes-on) .scene-dark { background: var(--antraciet); }
+
+/* de infokaart: crème, dunne oud-gouden rand, veel lucht */
+.scene-card {
+  flex: 0 1 30rem; min-width: 0; display: flex; flex-direction: column; gap: var(--s-s);
+  padding: clamp(1.75rem, 3.2vw, 3.25rem); background: var(--creme); color: var(--tekst);
+  border: 1px solid var(--oud-goud); border-radius: var(--radius-img);
+}
+.scene-card .heading { font-size: clamp(1.75rem, 2.7vw, 2.5rem); line-height: 1.08; text-wrap: balance; }
+#amber .scene-card .heading { font-size: clamp(2.6rem, 4.6vw, 4.25rem); font-weight: 700; letter-spacing: -.035em; line-height: 1; }
+.scene-card p:not(.lead) { color: var(--tekst-zacht); }
+.specs { margin: var(--s-xs) 0 0; width: 100%; border-top: 1px solid var(--lijn); }
+.specs div { display: grid; grid-template-columns: 8.5rem 1fr; gap: var(--s-s); padding-block: .7rem; border-bottom: 1px solid var(--lijn); }
+.specs dt { font-size: .9375rem; font-weight: 500; color: var(--tekst-zacht); }
+.specs dd { margin: 0; font-weight: 500; }
+.drops { display: flex; gap: var(--s-l); margin-top: var(--s-xs); flex-wrap: wrap; }
 .drops div { display: flex; flex-direction: column; gap: 2px; }
-.drops b { font-size: 2rem; font-weight: 700; color: var(--oud-goud); letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.drops span { font-size: .8125rem; color: var(--creme-zacht); }
-.gift { background: var(--creme); }
-.gift .media img { object-position: 50% 48%; }
-
-/* over de website */
-.about { background: var(--creme-diep); }
-.about-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: var(--s-xl); align-items: center; }
-.about-text { display: flex; flex-direction: column; gap: var(--s-m); min-width: 0; max-width: 40rem; }
+.drops b { font-size: 2rem; font-weight: 700; color: var(--bordeaux); letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.drops span { font-size: .8125rem; color: var(--tekst-zacht); }
 .about-list { border-top: 1px solid var(--lijn); }
-.about-list li { padding-block: .9rem; border-bottom: 1px solid var(--lijn); color: var(--tekst-zacht); }
+.about-list li { padding-block: .7rem; border-bottom: 1px solid var(--lijn); color: var(--tekst-zacht); font-size: .9375rem; }
 .about-list b { color: var(--bordeaux); font-weight: 600; }
-.about-fig { display: flex; flex-direction: column; gap: 10px; min-width: 0; max-width: 360px; justify-self: end; }
-.about-fig img { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: cover; object-position: 50% 66%; border-radius: var(--radius-img); }
-.about-fig figcaption { font-size: .875rem; color: var(--tekst-zacht); }
 
-/* nieuwsbrief */
-.signup { background: var(--bordeaux); color: var(--creme); }
-.signup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-xl); align-items: stretch; }
-.signup-box { padding-block: var(--s-xxl); display: flex; flex-direction: column; gap: var(--s-m); min-width: 0; }
-.signup .heading { color: var(--creme); }
-.signup-box > p { color: var(--creme-zacht); max-width: 40ch; }
-.signup-media { overflow: hidden; max-width: 100%; border-radius: var(--radius-img); margin-block: var(--s-l); }
-.signup-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; }
-.form { display: flex; flex-direction: column; gap: var(--s-m); margin-top: var(--s-s); max-width: 460px; }
-.field { display: flex; flex-direction: column; gap: 8px; }
+/* nieuwsbrief in de kaart: donkere tekst op crème */
+.form { display: flex; flex-direction: column; gap: var(--s-m); margin-top: var(--s-xs); max-width: 460px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: .8125rem; font-weight: 500; }
-.field input { font: inherit; color: var(--creme); background: transparent; border: 0; border-bottom: 1px solid rgba(244, 239, 230, .5); border-radius: 0; padding: 10px 0; transition: border-color .25s ease; }
-.field input::placeholder { color: rgba(244, 239, 230, .45); }
-.field input:focus { outline: none; border-bottom-color: var(--creme); }
+.field input { font: inherit; color: var(--tekst); background: transparent; border: 0; border-bottom: 1px solid rgba(31, 29, 27, .35); border-radius: 0; padding: 8px 0; transition: border-color .25s ease; }
+.field input::placeholder { color: rgba(31, 29, 27, .4); }
+.field input:focus { outline: none; border-bottom-color: var(--bordeaux); }
+.field input:focus-visible { box-shadow: 0 2px 0 0 var(--bordeaux); }
 .field input[aria-invalid="true"] { border-bottom-color: var(--fel); }
-.check { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; font-size: .875rem; color: var(--creme-zacht); }
-.check input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--creme); }
+.check { display: grid; grid-template-columns: 20px 1fr; gap: 12px; align-items: start; font-size: .875rem; color: var(--tekst-zacht); }
+.check input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--bordeaux); }
 .form .btn { align-self: flex-start; }
 .form-fallback { text-align: center; line-height: 1.3; padding-block: 12px; }
-.form-msg { min-height: 1.5em; font-weight: 500; }
-.form-msg.is-error { color: #F2C6BA; }
-.privacy { font-size: .8125rem; color: rgba(244, 239, 230, .6); }
-.privacy a { color: var(--creme); text-underline-offset: 3px; }
+.form-msg { min-height: 1.5em; font-weight: 500; color: var(--bordeaux); }
+.form-msg:empty { display: none; }
+.form-msg.is-error { color: var(--fel); }
+.privacy { font-size: .8125rem; color: var(--tekst-zacht); }
+.privacy a { color: var(--bordeaux); text-underline-offset: 3px; }
+.scene-signup .form { gap: var(--s-s); }
+.scene-card .btn-light { background: var(--bordeaux); border-color: var(--bordeaux); color: var(--creme); }
+.scene-card .btn-light:hover { background: var(--antraciet); border-color: var(--antraciet); color: var(--creme); }
+
+/* met animatie: elke scène is een vastgezet podium; de volgende scène begint waar de vorige ophoudt */
+.scenes-on .scene { height: calc(100svh - var(--header-h) + var(--scene-len, 330svh)); }
+.scenes-on .scene + .scene { margin-top: calc(var(--header-h) - 100svh); }
+.scenes-on .scene-signup { --scene-len: 170svh; }
+.scenes-on .scene-stage {
+  position: sticky; top: var(--header-h); height: calc(100svh - var(--header-h));
+  padding-block: var(--s-m); pointer-events: none; overflow: hidden;
+}
+.scenes-on .scene-media, .scenes-on .scene-card { pointer-events: auto; will-change: transform, opacity; }
+.scenes-on .scene-card > * { will-change: transform, opacity; }
+.scenes-on .is-off { pointer-events: none; }
+.scenes-on .scene-card { max-height: 100%; overflow: hidden; }
 
 /* privacy */
 .legal { background: var(--creme-diep); }
@@ -316,20 +327,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 @media (max-width: 1080px) { .nav { display: none; } }
 @media (max-width: 980px) {
   :root { --s-xxl: 6rem; --s-xl: 3.5rem; }
-  .split, .film-grid, .signup-grid, .about-grid { grid-template-columns: 1fr; }
-  .split-reverse .split-text { order: 0; }
-  .media { aspect-ratio: 4 / 4.2; }
-  .film-media:has(video) { width: min(100%, 420px); height: auto; max-height: none; }
-  .film-media video { width: 100%; height: auto; flex: none; }
-  .signup-media { display: none; }
-  .signup-box { padding-block: var(--s-xl); }
-  .about-fig { justify-self: start; }
 }
 
 /* ---------- smal: fles boven, uitleg onder ---------- */
 @media (max-width: 820px) {
   .hero-inner { grid-template-columns: 1fr; grid-template-areas: "text"; gap: var(--s-m); }
-  .no-3d .fallback-bottle { top: 36%; width: 46vw; }
+  .no-3d .fallback-bottle { right: 16px; bottom: auto; top: 30%; width: 28vw; }
   .scroll-hint { display: none; }
   .act-sticky { grid-template-columns: 1fr; grid-template-rows: 34% 1fr; align-items: start; }
   .act-ing .act-panel {
@@ -339,7 +342,27 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .ing-photo { display: none; }
   .ing { padding: 10px 8px; }
   .ing svg { width: 24px; height: 24px; }
-  .ing small { display: none; }
+  .ing-feature { padding: 12px 14px; min-height: 7.4rem; }
+  .ing-feature-icon { width: 40px; height: 40px; }
+  .ing-feature-desc { font-size: .875rem; }
+
+  /* scènes: beeld boven, kaart eronder; kaart schuift van onder in */
+  .scene-stage, .scene[data-side="left"] .scene-stage { flex-direction: column; gap: var(--s-m); }
+  .scene-media { height: min(var(--m-media, 46svh), 520px); }
+  .scene-card { flex: none; width: 100%; max-width: 34rem; gap: .75rem; padding: 20px 20px 22px; }
+  .scene-card .heading { font-size: 1.6rem; }
+  #amber .scene-card .heading { font-size: 2.4rem; }
+  .scenes-on .scene-stage { padding-block: 14px; gap: 14px; }
+  .scenes-on .scene-media figcaption { display: none; }
+  .scenes-on #amber { --m-media: 30svh; }
+  .scenes-on #verhaal, .scenes-on #cadeau { --m-media: 38svh; }
+  .scenes-on #film { --m-media: 46svh; }
+  .scenes-on #over { --m-media: 22svh; }
+  .scenes-on #nieuwsbrief { --m-media: 17svh; }
+  .scenes-on .scene-card .lead { font-size: 1rem; }
+  .specs div { padding-block: .45rem; }
+  .about-list li { padding-block: .5rem; font-size: .875rem; }
+  .drops b { font-size: 1.6rem; }
 }
 @media (max-width: 560px) {
   :root { --header-h: 64px; --s-xxl: 5rem; --gutter-l: max(16px, env(safe-area-inset-left, 0px)); --gutter-r: max(16px, env(safe-area-inset-right, 0px)); }
@@ -352,10 +375,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .ing .lay { font-size: .68rem; }
   .heading { font-size: 1.9rem; }
   .act .heading { font-size: 1.6rem; }
-  .specs div { grid-template-columns: 1fr; gap: 2px; }
+  .specs div { grid-template-columns: 7.5rem 1fr; gap: 8px; }
+  .specs dt, .specs dd { font-size: .875rem; }
   .footer-grid { grid-template-columns: 1fr; }
 }
-@media (min-width: 821px) and (max-height: 920px) { .ing small { display: none; } }
+@media (min-width: 821px) and (max-height: 760px) { .ing-photo { aspect-ratio: 16 / 4; } }
 @media (min-width: 821px) and (max-height: 660px) { .ing-photo { display: none; } }
 </style>
 </head>
@@ -418,145 +442,152 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     <div class="wrap act-sticky">
       <div class="act-panel">
         <h2 id="ing-titel" class="heading">Acht ingrediënten, één fles.</h2>
-        <p class="act-lead">Scroll verder en de ingrediënten komen één voor één vrij, van de frisse top tot de warme basis. Of klik op een ingrediënt om er meteen naartoe te gaan.</p>
+        <div class="ing-feature" id="ing-feature" aria-live="polite" style="--ing-c:#F4EFE6">
+          <svg class="ing-feature-icon" aria-hidden="true"><use id="ing-feature-use" href="#i-amber"/></svg>
+          <div class="ing-feature-text">
+            <p class="ing-feature-meta" id="ing-meta">Van fris naar warm</p>
+            <p class="ing-feature-name" id="ing-name">Scroll verder</p>
+            <p class="ing-feature-desc" id="ing-desc">De ingrediënten komen één voor één vrij, van de frisse top tot de warme basis. Of klik er meteen eentje aan.</p>
+          </div>
+        </div>
         <ul class="ing-grid" id="ing-grid">
-          <li><button class="ing" type="button" style="--ing-c:#F39A3A"><svg aria-hidden="true"><use href="#i-sinaasappel"/></svg><span class="lay">Top</span><b>Sinaasappel</b><small>Zonnig en sappig</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#F2CF4A"><svg aria-hidden="true"><use href="#i-citroen"/></svg><span class="lay">Top</span><b>Citroen</b><small>Fris en helder</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#F7F2E8"><svg aria-hidden="true"><use href="#i-jasmijn"/></svg><span class="lay">Hart</span><b>Jasmijn</b><small>Wit en zacht bloemig</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#EFAAB6"><svg aria-hidden="true"><use href="#i-roos"/></svg><span class="lay">Hart</span><b>Roos</b><small>Poederig en rond</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#A897DC"><svg aria-hidden="true"><use href="#i-lavendel"/></svg><span class="lay">Hart</span><b>Lavendel</b><small>Kruidig en rustig</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#C9A27A"><svg aria-hidden="true"><use href="#i-vanille"/></svg><span class="lay">Basis</span><b>Vanille</b><small>Romig en zoet</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#C99A6A"><svg aria-hidden="true"><use href="#i-sandelhout"/></svg><span class="lay">Basis</span><b>Sandelhout</b><small>Droog en houtig</small></button></li>
-          <li><button class="ing" type="button" style="--ing-c:#F0A632"><svg aria-hidden="true"><use href="#i-amber"/></svg><span class="lay">Basis</span><b>Amber</b><small>Warm en harsig</small></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#F39A3A" data-desc="Het eerste wat je ruikt. Zonnige, sappige schil die de geur meteen opent."><svg aria-hidden="true"><use href="#i-sinaasappel"/></svg><span class="lay">Top</span><b>Sinaasappel</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#F2CF4A" data-desc="Een frisse, heldere toets die de sinaasappel scherper maakt."><svg aria-hidden="true"><use href="#i-citroen"/></svg><span class="lay">Top</span><b>Citroen</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#F7F2E8" data-desc="Wit en zacht bloemig. Komt na een paar minuten naar voren."><svg aria-hidden="true"><use href="#i-jasmijn"/></svg><span class="lay">Hart</span><b>Jasmijn</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#EFAAB6" data-desc="Poederig en rond. Geeft het hart van de geur zijn zachtheid."><svg aria-hidden="true"><use href="#i-roos"/></svg><span class="lay">Hart</span><b>Roos</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#A897DC" data-desc="Kruidig en rustig. Houdt de bloemen in evenwicht."><svg aria-hidden="true"><use href="#i-lavendel"/></svg><span class="lay">Hart</span><b>Lavendel</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#C9A27A" data-desc="Romig en zoet. Maakt de geur warm op je huid."><svg aria-hidden="true"><use href="#i-vanille"/></svg><span class="lay">Basis</span><b>Vanille</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#C99A6A" data-desc="Droog en houtig. Geeft de basis diepte en houvast."><svg aria-hidden="true"><use href="#i-sandelhout"/></svg><span class="lay">Basis</span><b>Sandelhout</b></button></li>
+          <li><button class="ing" type="button" style="--ing-c:#F0A632" data-desc="Warm en harsig. De noot waar de geur naar heet, en die het langst blijft."><svg aria-hidden="true"><use href="#i-amber"/></svg><span class="lay">Basis</span><b>Amber</b></button></li>
         </ul>
         <figure class="ing-photo">
           <img src="img/geurnoten.jpg" width="1100" height="1375" loading="lazy" alt="De ingrediënten van Amber op donker marmer: sinaasappelschil, citroen, sandelhout, lavendel, jasmijn, rozenblaadjes, vanille en amber.">
           <figcaption>Alle acht, op donker marmer</figcaption>
         </figure>
-        <p class="step-count" id="ing-count" aria-live="polite">Scroll of klik op een ingrediënt</p>
       </div>
     </div>
   </section>
 
   <!-- de fles in detail -->
-  <section class="band section product" id="amber" aria-labelledby="amber-titel">
-    <div class="wrap split">
-      <figure class="media">
-        <img src="img/amber-product.jpg" width="1086" height="1448" loading="lazy" alt="Amber op een stenen tafel, omringd door sinaasappelschil, rozenblaadjes, lavendel, jasmijn, vanille en amberkristallen.">
+  <!-- SCÈNES: na de 3D-fles krijgt elke sectie een vastgezette scroll-scène.
+       beeld komt van onder in het midden, info schuift in vanaf data-side, beeld drijft omhoog weg -->
+  <section class="band scene" id="amber" data-side="right" aria-labelledby="amber-titel">
+    <div class="scene-stage">
+      <figure class="scene-media">
+        <img src="img/amber-product.jpg" width="1086" height="1448" decoding="async" alt="Amber op een stenen tafel, omringd door sinaasappelschil, rozenblaadjes, lavendel, jasmijn, vanille en amberkristallen.">
       </figure>
-      <div class="split-text">
+      <div class="scene-card">
         <h2 id="amber-titel" class="heading">Amber</h2>
         <p class="lead">Een warme, ronde geur die rustig opengaat. Fris bij het opspuiten, zacht en houtig na een uur.</p>
         <dl class="specs">
-          <div><dt>Concentratie</dt><dd>Eau de parfum</dd></div>
-          <div><dt>Inhoud</dt><dd>50 ml</dd></div>
-          <div><dt>Fles</dt><dd>Dik helder glas, zwarte dop</dd></div>
-          <div><dt>Etiket</dt><dd>Bordeaux, woordmerk in crème</dd></div>
-          <div><dt>Verpakking</dt><dd>Kraftdoos met lintje</dd></div>
+        <div><dt>Concentratie</dt><dd>Eau de parfum</dd></div>
+        <div><dt>Inhoud</dt><dd>50 ml</dd></div>
+        <div><dt>Fles</dt><dd>Dik helder glas, zwarte dop</dd></div>
+        <div><dt>Etiket</dt><dd>Bordeaux, woordmerk in crème</dd></div>
+        <div><dt>Verpakking</dt><dd>Kraftdoos met lintje</dd></div>
         </dl>
       </div>
     </div>
   </section>
 
-
   <!-- het huis -->
-  <section class="band section story" id="verhaal" aria-labelledby="verhaal-titel">
-    <div class="wrap">
-      <div class="story-frame">
-        <img src="img/amber-kom.jpg" width="941" height="1672" loading="lazy" alt="De fles Amber op crème stof naast een kom met sinaasappelschil, vanille, lavendel en rozenblaadjes, in warm zonlicht.">
-        <div class="story-text">
-          <h2 id="verhaal-titel" class="heading">Een parfumhuis voor trage momenten.</h2>
-          <p class="lead">Maison Ambrose maakt warme, houtige geuren in kleine oplages, met tijd en aandacht.</p>
-          <p>Een geur van ons toont zich langzaam. Eerst fris, dan zacht, en uren later nog altijd warm op de huid. Zo ziet ons huis er ook uit: linnen, hout en het laatste zonlicht op tafel.</p>
-        </div>
+  <section class="band scene" id="verhaal" data-side="left" aria-labelledby="verhaal-titel">
+    <div class="scene-stage">
+      <figure class="scene-media">
+        <img src="img/amber-kom.jpg" width="941" height="1672" decoding="async" alt="De fles Amber op crème stof naast een kom met sinaasappelschil, vanille, lavendel en rozenblaadjes, in warm zonlicht.">
+      </figure>
+      <div class="scene-card">
+        <h2 id="verhaal-titel" class="heading">Een parfumhuis voor trage momenten.</h2>
+        <p class="lead">Maison Ambrose maakt warme, houtige geuren in kleine oplages, met tijd en aandacht.</p>
+        <p>Een geur van ons toont zich langzaam. Eerst fris, dan zacht, en uren later nog altijd warm op de huid. Zo ziet ons huis er ook uit: linnen, hout en het laatste zonlicht op tafel.</p>
       </div>
     </div>
   </section>
 
-  <!-- film -->
-  <section class="band section film on-dark" id="film" aria-labelledby="film-titel">
-    <div class="wrap film-grid">
-      <div class="split-text">
-        <h2 id="film-titel" class="heading">Van druppel tot fles.</h2>
-        <p>Ingrediënten vallen in het water, draaien samen en komen terug als één geur. Van de eerste druppel tot Amber.</p>
-        <div class="drops">
-          <div><b>15 s</b><span>filmpje</span></div>
-          <div><b>8</b><span>ingrediënten</span></div>
-          <div><b>1</b><span>geur</span></div>
-        </div>
-      </div>
-      <figure class="film-media" id="film-box">
+  <!-- film: achtergrond kleurt antraciet tijdens deze scène -->
+  <section class="band scene scene-dark" id="film" data-side="right" data-dark aria-labelledby="film-titel">
+    <div class="scene-stage">
+      <figure class="scene-media scene-film" id="film-box">
         <video id="film-video" controls muted loop playsinline preload="metadata" poster="img/amber-vloeistof.jpg" aria-label="Film van Amber: ingrediënten vallen in het water en worden één geur.">
-          <source src="video/amber.mp4" type="video/mp4">
-          <p class="film-fallback">Je browser ondersteunt deze video niet. <a href="video/amber.mp4">Download de film (MP4)</a>.</p>
+        <source src="video/amber.mp4" type="video/mp4">
+        <p class="film-fallback">Je browser ondersteunt deze video niet. <a href="video/amber.mp4">Download de film (MP4)</a>.</p>
         </video>
         <figcaption class="film-cap">Amber · 15 seconden · geluid via de speler</figcaption>
       </figure>
+      <div class="scene-card">
+        <h2 id="film-titel" class="heading">Van druppel tot fles.</h2>
+        <p>Ingrediënten vallen in het water, draaien samen en komen terug als één geur. Van de eerste druppel tot Amber.</p>
+        <div class="drops">
+        <div><b>15 s</b><span>filmpje</span></div>
+        <div><b>8</b><span>ingrediënten</span></div>
+        <div><b>1</b><span>geur</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- cadeau -->
-  <section class="band section gift" id="cadeau" aria-labelledby="cadeau-titel">
-    <div class="wrap split split-reverse">
-      <div class="split-text">
+  <section class="band scene" id="cadeau" data-side="left" aria-labelledby="cadeau-titel">
+    <div class="scene-stage">
+      <figure class="scene-media">
+        <img src="img/cadeau-doos.jpg" width="941" height="1672" decoding="async" alt="Een geopende kraftdoos van Maison Ambrose met de fles Amber erin, op een crème sokkel naast witte bloesem.">
+      </figure>
+      <div class="scene-card">
         <h2 id="cadeau-titel" class="heading">Uitpakken is de eerste noot.</h2>
         <p class="lead">Amber komt in een stevige kraftdoos met bordeaux etiket.</p>
         <p>Trek aan het lintje, de doos gaat open en de fles ligt klaar. Je hoeft niets meer in te pakken. Voor jezelf, of voor iemand die je graag verwent.</p>
       </div>
-      <figure class="media media-label">
-        <img src="img/cadeau-doos.jpg" width="941" height="1672" loading="lazy" alt="Een geopende kraftdoos van Maison Ambrose met de fles Amber erin, op een crème sokkel naast witte bloesem.">
-      </figure>
     </div>
   </section>
 
   <!-- over deze website -->
-  <section class="band section about" id="over" aria-labelledby="over-titel">
-    <div class="wrap about-grid">
-      <div class="about-text">
+  <section class="band scene" id="over" data-side="right" aria-labelledby="over-titel">
+    <div class="scene-stage">
+      <figure class="scene-media">
+        <img src="img/hero-amber.jpg" width="941" height="1672" decoding="async" alt="AI-beeld: de fles Amber op een stenen sokkel met jasmijn en vanille.">
+        <figcaption>Het AI-beeld waarop de 3D-fles gebaseerd is</figcaption>
+      </figure>
+      <div class="scene-card">
         <h2 id="over-titel" class="heading">Bedacht met AI, gebouwd in 3D.</h2>
         <p class="lead">Maison Ambrose bestaat niet. Het merk, de foto's, de film en deze site zijn gemaakt voor de periodeopdracht Creative Automation.</p>
         <ul class="about-list">
-          <li><b>Merk.</b> Naam, kleuren, Syne en het bordeaux etiket komen uit één Brand Kit.</li>
-          <li><b>Foto's en film.</b> Gemaakt met Figma Weave, ChatGPT en Kling, telkens op basis van dezelfde fles.</li>
-          <li><b>3D-fles.</b> In code nagebouwd met three.js: glas, vloeistof, verstuiver, dop en etiket.</li>
-          <li><b>Animatie.</b> Hoe ver je scrolt, bepaalt waar de fles staat en welke ingrediënten vrijkomen.</li>
+        <li><b>Merk.</b> Naam, kleuren, Syne en het bordeaux etiket komen uit één Brand Kit.</li>
+        <li><b>Foto's en film.</b> Gemaakt met Figma Weave, ChatGPT en Kling, telkens op basis van dezelfde fles.</li>
+        <li><b>3D-fles.</b> In code nagebouwd met three.js: glas, vloeistof, verstuiver, dop en etiket.</li>
+        <li><b>Animatie.</b> Hoe ver je scrolt, bepaalt waar de fles staat en welke ingrediënten vrijkomen.</li>
         </ul>
       </div>
-      <figure class="about-fig">
-        <img src="img/hero-amber.jpg" width="941" height="1672" loading="lazy" alt="AI-beeld: de fles Amber op een stenen sokkel met jasmijn en vanille.">
-        <figcaption>Het AI-beeld waarop de 3D-fles gebaseerd is</figcaption>
-      </figure>
     </div>
   </section>
 
-  <!-- nieuwsbrief -->
-  <section class="band signup" id="nieuwsbrief" aria-labelledby="nieuwsbrief-titel">
-    <div class="wrap signup-grid">
-      <div class="signup-box">
+  <!-- nieuwsbrief: laatste scène, blijft staan zodra het formulier in beeld is -->
+  <section class="band scene scene-signup" id="nieuwsbrief" data-side="left" aria-labelledby="nieuwsbrief-titel">
+    <div class="scene-stage">
+      <figure class="scene-media">
+        <img src="img/avond-kaars.jpg" width="941" height="1672" decoding="async" alt="De fles Amber op linnen naast een brandende kaars, met jasmijn, vanille en een gedroogd sinaasappelschijfje.">
+      </figure>
+      <div class="scene-card">
         <h2 id="nieuwsbrief-titel" class="heading">Blijf dichtbij.</h2>
         <p>Ontdek de wereld van Maison Ambrose. Nieuwe verhalen, geurnoten en bijzondere momenten, rechtstreeks in je mailbox.</p>
         <form class="form" id="signup-form" novalidate>
-          <div class="field">
-            <label for="naam">Naam</label>
-            <input id="naam" name="fields[name]" type="text" autocomplete="given-name" placeholder="Bv. Lotte" required>
-          </div>
-          <div class="field">
-            <label for="email">E-mailadres</label>
-            <input id="email" name="fields[email]" type="email" autocomplete="email" placeholder="naam@voorbeeld.be" required>
-          </div>
-          <div class="check">
-            <input id="toestemming" name="toestemming" type="checkbox" required>
-            <label for="toestemming">Ik wil de nieuwsbrief van Maison Ambrose ontvangen. Uitschrijven kan altijd.</label>
-          </div>
-          <button class="btn btn-light" id="signup-btn" type="submit">Schrijf je in</button>
-          <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
-          <a class="btn btn-light form-fallback" id="form-fallback" href="https://preview.mailerlite.io/forms/2735640/202104171950770037/share" target="_blank" rel="noopener" hidden>Open het inschrijfformulier van MailerLite</a>
-          <p class="privacy">We gebruiken je naam en e-mailadres alleen voor de nieuwsbrief. Lees onze <a href="#privacy">privacyverklaring</a>.</p>
+        <div class="field">
+        <label for="naam">Naam</label>
+        <input id="naam" name="fields[name]" type="text" autocomplete="given-name" placeholder="Bv. Lotte" required>
+        </div>
+        <div class="field">
+        <label for="email">E-mailadres</label>
+        <input id="email" name="fields[email]" type="email" autocomplete="email" placeholder="naam@voorbeeld.be" required>
+        </div>
+        <div class="check">
+        <input id="toestemming" name="toestemming" type="checkbox" required>
+        <label for="toestemming">Ik wil de nieuwsbrief van Maison Ambrose ontvangen. Uitschrijven kan altijd.</label>
+        </div>
+        <button class="btn btn-light" id="signup-btn" type="submit">Schrijf je in</button>
+        <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
+        <a class="btn btn-light form-fallback" id="form-fallback" href="https://preview.mailerlite.io/forms/2735640/202104171950770037/share" target="_blank" rel="noopener" hidden>Open het inschrijfformulier van MailerLite</a>
+        <p class="privacy">We gebruiken je naam en e-mailadres alleen voor de nieuwsbrief. Lees onze <a href="#privacy">privacyverklaring</a>.</p>
         </form>
       </div>
-      <figure class="signup-media">
-        <img src="img/avond-kaars.jpg" width="941" height="1672" loading="lazy" alt="De fles Amber op linnen naast een brandende kaars, met jasmijn, vanille en een gedroogd sinaasappelschijfje.">
-      </figure>
     </div>
   </section>
 
@@ -615,7 +646,17 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   var header = $(".site-header"), progress = $("#progress");
   var hero = $("#held"), actIng = $("#ingredienten"), after = $("#amber");
   var tiles = Array.prototype.slice.call(document.querySelectorAll("#ing-grid .ing"));
-  var ingCount = $("#ing-count");
+  var feat = $("#ing-feature"), featUse = $("#ing-feature-use"), featMeta = $("#ing-meta"), featName = $("#ing-name"), featDesc = $("#ing-desc");
+  var featIntro = { meta: featMeta.textContent, name: featName.textContent, desc: featDesc.textContent };
+  function showFeature(on) {
+    var t = on > 0 ? tiles[on - 1] : null;
+    feat.style.setProperty("--ing-c", t ? t.style.getPropertyValue("--ing-c") : "#F4EFE6");
+    featUse.setAttribute("href", t ? t.querySelector("use").getAttribute("href") : "#i-amber");
+    featMeta.textContent = t ? t.querySelector(".lay").textContent + "noot, " + on + " van 8" : featIntro.meta;
+    featName.textContent = t ? t.querySelector("b").textContent : featIntro.name;
+    featDesc.textContent = t ? t.getAttribute("data-desc") : featIntro.desc;
+    if (!reduce) { feat.classList.remove("is-swap"); void feat.offsetWidth; feat.classList.add("is-swap"); }
+  }
   var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
 
   /* ---------- layout: ankerpunten van de scroll ---------- */
@@ -623,15 +664,17 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   function top(el) { return el.getBoundingClientRect().top + scrollY; }
   /* grote titel: altijd het volledige woord, zo breed als het scherm toelaat */
   var word = $(".hero-word");
+  /* breedte zonder scrollbalk en zonder uitrekken op gsm (innerWidth groeit mee met te brede inhoud) */
+  function pageW() { return document.documentElement.clientWidth || innerWidth; }
   function fitWord() {
     if (!word || !word.children.length) return;
     word.style.fontSize = "100px";
     var k = word.children, w = k[k.length - 1].getBoundingClientRect().right - k[0].getBoundingClientRect().left;
-    if (w > 0) word.style.fontSize = Math.min(100 * innerWidth * .92 / w, innerHeight * (innerWidth <= 820 ? .3 : .44)).toFixed(1) + "px";
+    if (w > 0) word.style.fontSize = Math.min(100 * pageW() * .92 / w, innerHeight * (pageW() <= 820 ? .3 : .44)).toFixed(1) + "px";
   }
   function measure() {
     fitWord();
-    vw = innerWidth; vh = innerHeight; narrow = vw <= 820;
+    vw = pageW(); vh = innerHeight; narrow = vw <= 820;
     hdrH = header.getBoundingClientRect().height;
     var ingT = top(actIng) - hdrH;
     var stick = vh - hdrH, ingEnd = ingT + actIng.offsetHeight - stick;
@@ -642,6 +685,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
       { y: ingEnd + stick * .9, s: "exit" }
     ];
     if (gl) gl.resize();
+    measureScenes();
   }
 
   /* gewicht per akte + voortgang binnen de vastgezette akten */
@@ -666,6 +710,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   function mixBg(w) {
     var c = [0, 0, 0];
     for (var k in w) for (var j = 0; j < 3; j++) c[j] += BG[k][j] * w[k];
+    for (var m = 0; m < 3; m++) c[m] += (BG.ing[m] - c[m]) * sceneDark;
     return "rgb(" + c.map(Math.round).join(",") + ")";
   }
 
@@ -691,10 +736,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     st.cur = on - 1;
     if (on !== lastOn) {
       tiles.forEach(function (t, i) { t.classList.toggle("is-on", i < on); t.classList.toggle("is-current", i === on - 1); t.setAttribute("aria-pressed", i === on - 1); });
-      if (on > 0) {
-        var t = tiles[on - 1];
-        ingCount.textContent = t.querySelector("b").textContent + ": " + t.querySelector("small").textContent.toLowerCase() + ". Ingrediënt " + on + " van 8.";
-      } else ingCount.textContent = "Scroll of klik op een ingrediënt";
+      if (lastOn !== -1 || on > 0) showFeature(on);
       lastOn = on;
     }
 
@@ -710,8 +752,103 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     sections.forEach(function (s) { if (s.el.getBoundingClientRect().top < vh * .45) current = s.id; });
     navLinks.forEach(function (a) { a.classList.toggle("is-active", a.getAttribute("href") === "#" + current); });
   }
-  var parallax = Array.prototype.slice.call(document.querySelectorAll(".media img, .ing-photo img, .story-frame img"));
+  var parallax = Array.prototype.slice.call(document.querySelectorAll(".ing-photo img"));
   var sections = ["ingredienten", "amber", "verhaal", "over"].map(function (id) { return { id: id, el: document.getElementById(id) }; });
+
+
+  /* ---------- scènes na de fles: één vastgezet podium per sectie, volledig scroll-gestuurd ----------
+     p = 0..1 binnen de scène:  beeld komt binnen 0–.18 · info .12–.42 (regels na elkaar) · rust .42–.64 · rustig weg .64–1 */
+  var sceneDark = 0, filmCtl = null;
+  var sceneEls = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var scenesOn = !reduce && sceneEls.length > 0;
+  if (scenesOn) document.documentElement.classList.add("scenes-on");
+  var scenes = sceneEls.map(function (el, i) {
+    var card = el.querySelector(".scene-card");
+    return {
+      el: el, id: el.id, stage: el.querySelector(".scene-stage"), media: el.querySelector(".scene-media"), card: card,
+      items: Array.prototype.slice.call(card.children), dir: el.getAttribute("data-side") === "left" ? -1 : 1,
+      dark: el.hasAttribute("data-dark"), last: i === sceneEls.length - 1, start: 0, len: 1, dx: 0, dy: 0, q: null, drawn: -1
+    };
+  });
+  var MI = [0, .18], CI = [.12, .28], STAG = .03, REST = .42, OUT = [.64, 1];
+  function restP(s) { return s.last ? .62 : (REST + OUT[0]) / 2; }
+  function restY(s) { return Math.round(s.start + s.len * restP(s)); }
+  function sceneById(id) { for (var i = 0; i < scenes.length; i++) if (scenes[i].id === id) return scenes[i]; return null; }
+  function measureScenes() {
+    if (!scenesOn) return;
+    scenes.forEach(function (s) {
+      var stageH = s.stage.offsetHeight;
+      s.start = top(s.el) - hdrH;
+      s.len = Math.max(1, s.el.offsetHeight - stageH);
+      /* hoeveel het beeld moet verschuiven om alleen gecentreerd te staan zolang de info er nog niet is */
+      s.dx = s.stage.clientWidth / 2 - (s.media.offsetLeft + s.media.offsetWidth / 2);
+      s.dy = s.stage.clientHeight / 2 - (s.media.offsetTop + s.media.offsetHeight / 2);
+      s.drawn = -1;
+    });
+  }
+  function drawScene(s, p) {
+    var rise = vh * .32, slide = narrow ? 0 : Math.max(60, vw * .07), lift = narrow ? 36 : 0;
+    var mIn = smooth(MI[0], MI[1], p), cIn = smooth(CI[0], CI[1], p);
+    var o = clamp((p - OUT[0]) / (OUT[1] - OUT[0]), 0, 1), out = s.last ? 0 : o * o * o * (o * (o * 6 - 15) + 10);
+    /* beeld: van onder in, schuift opzij zodra de info komt, drijft bij het weggaan omhoog */
+    var mx = s.dx * (1 - cIn), my = s.dy * (1 - cIn) + (1 - mIn) * rise - out * rise * .85;
+    s.media.style.transform = "translate3d(" + mx.toFixed(1) + "px," + my.toFixed(1) + "px,0) scale(" + (1 - out * .05).toFixed(4) + ")";
+    var mo = mIn * (1 - out);
+    s.media.style.opacity = mo.toFixed(3);
+    s.media.classList.toggle("is-off", mo < .5);
+    /* infokaart: zacht in vanaf zijn kant (op gsm van onder), bij het weggaan terug naar die kant */
+    var away = (1 - cIn) + out;
+    s.card.style.transform = "translate3d(" + (s.dir * away * slide).toFixed(1) + "px," + (away * lift).toFixed(1) + "px,0)";
+    var co = cIn * (1 - out);
+    s.card.style.opacity = co.toFixed(3);
+    s.card.classList.toggle("is-off", co < .5);
+    s.items.forEach(function (it, k) {
+      var t = smooth(CI[0] + k * STAG, CI[1] + k * STAG + .06, p);
+      it.style.transform = narrow ? "translate3d(0," + ((1 - t) * 14).toFixed(1) + "px,0)" : "translate3d(" + (s.dir * (1 - t) * 22).toFixed(1) + "px,0,0)";
+      it.style.opacity = t.toFixed(3);
+    });
+    if (s.media === filmBox && filmCtl) filmCtl(p > CI[0] && p < OUT[0] + .16);
+  }
+  var filmBox = document.getElementById("film-box");
+  function updateScenes(dt) {
+    sceneDark = 0;
+    if (!scenesOn) return;
+    var focusEl = document.activeElement;
+    scenes.forEach(function (s) {
+      var raw = (scrollY - s.start) / s.len, p = clamp(raw, 0, 1);
+      /* nieuwsbrief: zolang je in het formulier zit, blijft alles staan */
+      if (s.last && focusEl && s.card.contains(focusEl) && focusEl !== document.body) p = Math.max(p, REST);
+      s.q = s.q == null ? p : s.q + (p - s.q) * (1 - Math.exp(-dt * 5));
+      if (Math.abs(p - s.q) < .0004) s.q = p;
+      if (s.dark) { var d = smooth(0, MI[1], s.q) * (1 - smooth(OUT[0] + .08, OUT[1] - .04, s.q)); sceneDark = Math.max(sceneDark, d); }
+      if (Math.abs(s.q - s.drawn) < .00005) return;
+      s.drawn = s.q; drawScene(s, s.q);
+    });
+  }
+  /* menu en ankers: spring naar het moment waarop de scène volledig in beeld staat */
+  document.addEventListener("click", function (e) {
+    if (!scenesOn || e.defaultPrevented) return;
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var s = sceneById(a.getAttribute("href").slice(1));
+    if (!s) return;
+    e.preventDefault();
+    window.scrollTo({ top: restY(s), behavior: "smooth" });
+    try { history.replaceState(null, "", "#" + s.id); } catch (err) {}
+  });
+  /* toetsenbord: focus in een verborgen kaart brengt die scène in beeld */
+  document.addEventListener("focusin", function (e) {
+    if (!scenesOn) return;
+    scenes.forEach(function (s) {
+      if (!s.el.contains(e.target)) return;
+      var p = (scrollY - s.start) / s.len;
+      if (p < REST - .02 || p > OUT[0]) window.scrollTo(0, restY(s));
+    });
+  });
+  function jumpToHash() {
+    var s = scenesOn && location.hash && sceneById(location.hash.slice(1));
+    if (s) { measure(); window.scrollTo(0, restY(s)); }
+  }
 
   /* ---------- 3D ---------- */
   var gl = null;
@@ -868,27 +1005,28 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
       halfW = halfH * camera.aspect;
       var hf = hdrH / vh, mid = hf + (1 - hf) * .5;
       if (!narrow) {
-        S.hero = { x: 0, y: wy(hf + (1 - hf) * .47), s: fit(.6, .3), ry: 0 };
-        S.ing = { x: wx(.27), y: wy(mid), s: fit(.6, .3), ry: 0 };
+        S.hero = { x: wx(.85), y: wy(.74), s: fit(.3, .14), ry: 0 };
+        S.ing = { x: wx(.26), y: wy(mid), s: fit(.66, .34), ry: 0 };
         S.exit = { x: wx(.27), y: halfH * 2.4, s: fit(.42, .3), ry: 0 };
       } else {
-        S.hero = { x: 0, y: wy(hf + (1 - hf) * .34), s: fit(.4, .42), ry: 0 };
-        S.ing = { x: 0, y: wy(hf + (1 - hf) * .16), s: fit(.2, .34), ry: 0 };
+        S.hero = { x: wx(.76), y: wy(hf + (1 - hf) * .38), s: fit(.19, .26), ry: 0 };
+        S.ing = { x: 0, y: wy(hf + (1 - hf) * .165), s: fit(.24, .4), ry: 0 };
         S.exit = { x: 0, y: halfH * 2.4, s: fit(.2, .34), ry: 0 };
       }
     }
 
-    var cur = null, heroSpin = 0, intro = 0, px = 0, py = 0, tx = 0, ty = 0;
+    var cur = null, spin = 0, intro = 0, px = 0, py = 0, tx = 0, ty = 0;
     addEventListener("pointermove", function (e) { tx = e.clientX / vw * 2 - 1; ty = e.clientY / vh * 2 - 1; }, { passive: true });
 
     function frame(st, dt, time) {
       var w = st.w, t = { x: 0, y: 0, s: 0 };
       ["hero", "ing", "exit"].forEach(function (k) { t.x += S[k].x * w[k]; t.y += S[k].y * w[k]; t.s += S[k].s * w[k]; });
-      var ry = w.ing * lerp(-.65, .55, st.ingP) + w.exit * (.55 + Math.PI * 2);
+      var ry = 0;
 
-      /* draaien in de held, daarna netjes uitdraaien naar een hele toer */
-      if (st.y < A[1].y * .35 && !reduce) heroSpin += dt * .45;
-      else { var tgt = Math.round(heroSpin / (Math.PI * 2)) * Math.PI * 2; heroSpin += (tgt - heroSpin) * (1 - Math.exp(-dt * 2.5)); }
+      /* de fles draait mee met de scroll: hoe sneller je scrolt, hoe sneller ze draait (één toer per ~1,2 schermhoogte) */
+      var spinT = reduce ? 0 : st.y / (vh * 1.2) * Math.PI * 2;
+      spin += (spinT - spin) * (1 - Math.exp(-dt * 4));
+      var sway = reduce ? 0 : Math.sin(time * .6) * .14 * w.hero;
 
       intro = Math.min(1, intro + dt / 1.9);
       var ie = reduce ? 1 : 1 - Math.pow(1 - intro, 4);
@@ -900,7 +1038,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
       bottle.position.set(cur.x, cur.y - (1 - ie) * 1.4 + (reduce ? 0 : Math.sin(time * 1.1) * .04), 0);
       bottle.scale.setScalar(cur.s * (.82 + .18 * ie));
-      bottle.rotation.set(.1 + py * .12, cur.ry + heroSpin + (1 - ie) * Math.PI * 1.5 + px * .35, px * -.04);
+      bottle.rotation.set(.1 + py * .12, cur.ry + spin + sway + (1 - ie) * Math.PI * 1.5 + px * .35, px * -.04);
       shadow.material.opacity = w.hero * ie;
 
 
@@ -912,7 +1050,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
         /* het gekozen ingrediënt komt dichterbij en wordt groter */
         var goal = st.cur < 0 ? 1 : (u.i === st.cur ? 1.9 : .7);
         u.f = u.f == null ? goal : u.f + (goal - u.f) * (1 - Math.exp(-dt * 5));
-        var a = u.a + time * u.sp * (reduce ? 0 : 1), rr = u.r * (u.i === st.cur ? .78 : 1);
+        /* de bolletjes draaien mee met de scroll, elk op hun eigen tempo */
+        var a = u.a + spin * (.55 + u.sp) + time * u.sp * (reduce ? 0 : .25), rr = u.r * (u.i === st.cur ? .78 : 1);
         m.position.set(Math.cos(a) * rr, u.h + Math.sin(time * .8 + u.ph) * .12, Math.sin(a) * rr);
         m.scale.setScalar(Math.max(.0001, u.size * rev * u.f));
       });
@@ -935,13 +1074,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   }
   var last = performance.now(), time = 0, dirty = true;
   addEventListener("resize", function () { measure(); dirty = true; });
-  addEventListener("load", measure);
+  addEventListener("load", function () { measure(); jumpToHash(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
   if ("ResizeObserver" in window) new ResizeObserver(function () { measure(); }).observe(document.body);
 
   function loop(now) {
     var dt = Math.min(.05, (now - last) / 1000); last = now; time += dt;
     var st = readScroll();
+    updateScenes(dt);
     updateDom(st);
     if (gl) {
       var visible = st.y < A[A.length - 1].y + vh * .2;
@@ -963,7 +1103,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
     });
     v.addEventListener("pause", function () { if (!auto) userPaused = true; auto = false; });
     v.addEventListener("play", function () { userPaused = false; });
-    if ("IntersectionObserver" in window) {
+    /* met scènes: speel stil af zodra hij gecentreerd staat, pauzeer bij het weggaan */
+    filmCtl = function (on) {
+      if (on && !userPaused && v.paused) v.play().catch(function () {});
+      else if (!on && !v.paused) { auto = true; v.pause(); }
+    };
+    if (!scenesOn && "IntersectionObserver" in window) {
       new IntersectionObserver(function (es) {
         es.forEach(function (e) {
           if (e.isIntersecting && !userPaused && !reduce && v.paused) v.play().catch(function () {});
